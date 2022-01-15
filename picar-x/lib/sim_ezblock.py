@@ -33,6 +33,7 @@ class Servo(object):
         return 0
         
     # angle ranges -90 to 90 degrees
+    @log_on_start (logging.DEBUG , "Servo.angle called")
     def angle(self, angle):
         # if not (isinstance(angle, int) or isinstance(angle, float)):
         #     raise ValueError("Angle value should be int or float value, not %s"%type(angle))
@@ -96,6 +97,7 @@ class PWM(I2C):
         # self.freq(50)
         pass
 
+    @log_on_start (logging.DEBUG , "PWM.i2c_write called")
     def i2c_write(self, reg, value):
         # value_h = value >> 8
         # value_l = value & 0xff
@@ -103,6 +105,7 @@ class PWM(I2C):
         # self.send([reg, value_h, value_l], self.ADDR)
         pass
 
+    @log_on_start (logging.DEBUG , "PWM.freq called")
     def freq(self, *freq):
         # if len(freq) == 0:
         #     return self._freq
@@ -131,6 +134,7 @@ class PWM(I2C):
         #     self.period(arr)
         return 0
 
+    @log_on_start (logging.DEBUG , "PWM.prescaler called")
     def prescaler(self, *prescaler):
         # if len(prescaler) == 0:
         #     return self._prescaler
@@ -141,6 +145,7 @@ class PWM(I2C):
         #     self.i2c_write(reg, self._prescaler)
         return 0
 
+    @log_on_start (logging.DEBUG , "PWM.period called")
     def period(self, *arr):
         # global timer
         # if len(arr) == 0:
@@ -152,6 +157,7 @@ class PWM(I2C):
         #     self.i2c_write(reg, timer[self.timer]["arr"])
         return 0
 
+    @log_on_start (logging.DEBUG , "PWM.pulse_width called")
     def pulse_width(self, *pulse_width):
         # if len(pulse_width) == 0:
         #     return self._pulse_width
@@ -161,6 +167,7 @@ class PWM(I2C):
         #     self.i2c_write(reg, self._pulse_width)
         return 0
 
+    @log_on_start (logging.DEBUG , "PWM.pulse_width_percent called")
     def pulse_width_percent(self, *pulse_width_percent):
         # global timer
         # if len(pulse_width_percent) == 0:
@@ -197,6 +204,7 @@ class ADC(I2C):
         # # self.bus = smbus.SMBus(1)
         pass
         
+    @log_on_start (logging.DEBUG , "ADC.read called")
     def read(self):                     # adc通道读取数---写一次数据，读取两次数据 （读取的数据范围是0~4095）
         # # self._debug("Write 0x%02X to 0x%02X"%(self.chn, self.ADDR))
         # # self.bus.write_byte(self.ADDR, self.chn)      # 写入数据
@@ -215,6 +223,7 @@ class ADC(I2C):
         # return value
         return 0
 
+    @log_on_start (logging.DEBUG , "ADC.read_voltage called")
     def read_voltage(self):                             # 将读取的数据转化为电压值（0~3.3V）
         # return self.read*3.3/4095
         return 0
@@ -325,6 +334,7 @@ class Pin(object):
         # self.init(mode, pull=setup)
         # # self._info("Pin init finished.")
         
+    @log_on_start (logging.DEBUG , "Pin.check_board_type called")
     def check_board_type(self):
         # type_pin = self.dict()["BOARD_TYPE"]
         # GPIO.setup(type_pin, GPIO.IN)
@@ -334,6 +344,7 @@ class Pin(object):
         #     self._dict = self._dict_2
         pass
 
+    @log_on_start (logging.DEBUG , "Pin.init called")
     def init(self, mode, pull=PULL_NONE):
         # self._pull = pull
         # self._mode = mode
@@ -359,6 +370,7 @@ class Pin(object):
         # return self.value(value)
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.value called")
     def value(self, *value):
         # if len(value) == 0:
         #     self.mode(self.IN)
@@ -372,22 +384,27 @@ class Pin(object):
         #     return value
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.on called")
     def on(self):
         # return self.value(1)
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.off called")
     def off(self):
         # return self.value(0)
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.high called")
     def high(self):
         # return self.on()
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.low called")
     def low(self):
         # return self.off()
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.mode called")
     def mode(self, *value):
         # if len(value) == 0:
         #     return self._mode
@@ -397,19 +414,23 @@ class Pin(object):
         #     GPIO.setup(self._pin, mode)
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.pull called")
     def pull(self, *value):
         # return self._pull
         pass
 
+    @log_on_start (logging.DEBUG , "Pin.irq called")
     def irq(self, handler=None, trigger=None, bouncetime=200):
         # self.mode(self.IN)
         # GPIO.add_event_detect(self._pin, trigger, callback=handler, bouncetime=bouncetime)
         pass
 
+    @log_on_start (logging.DEBUG , "Pin.name called")
     def name(self):
         # return "GPIO%s"%self._pin
         return 0
 
+    @log_on_start (logging.DEBUG , "Pin.names called")
     def names(self):
         # return [self.name, self._board_name]
         return tuple()
@@ -465,6 +486,7 @@ class fileDB(object):
         else:
             self.db = "config"
 
+    @log_on_start (logging.DEBUG , "FileDB.get called")
     def get(self, name, default_value=None):
         """Get value by data's name. Default value is for the arguemants do not exist"""
         # try:
@@ -492,6 +514,7 @@ class fileDB(object):
         #     return default_value
         return 0
 	
+    @log_on_start (logging.DEBUG , "FileDB.set called")
     def set(self, name, value):
         """Set value by data's name. Or create one if the arguement does not exist"""
 

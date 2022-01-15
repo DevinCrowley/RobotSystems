@@ -12,7 +12,7 @@ def go(picarx, angle=None, speed=None):
 def ppark(picarx, to_left=True):
     pos_if_to_left = 1 if to_left else -1
 
-    go(picarx, angle=0, speed=30)
+    go(picarx, angle=0, speed=-30)
     time.sleep(0.5)
     go(picarx, angle=30 * pos_if_to_left, speed=-30)
     time.sleep(0.75)
