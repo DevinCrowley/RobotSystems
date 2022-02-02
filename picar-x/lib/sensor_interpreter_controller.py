@@ -126,3 +126,52 @@ def follow_line_grayscale_multithread(picarx):
             controller.go = False
             break
         time.sleep(0.5)
+
+
+
+from rossros import Bus, ConsumerProducer, Consumer, Producer, Timer, runConcurrently
+def follow_line_rossros(picarx):
+
+    sensor = Sensor()
+    interpreter = Interpreter(threshold=500, polarity='dark_target')
+    controller = Controller(picarx, offset_to_steering_angle=12)
+
+    sensor_bus = Bus(name='sensor_bus')
+    interpreter_bus = Bus(name='interpreter_bus')
+    termination_bus = Bus(False, name='termination_bus')
+
+    sensor_producer = Producer(
+        producer_function=sensor.read_channels,
+        output_busses=sensor_bus,
+        delay=0.05,
+        termination_busses=termination_bus,
+        name='sensor_producer',
+    )
+
+    interpreter_consumer_producer = ConsumerProducer(
+        consumer_producer_function=interpreter.channels_to_car_offset,
+        input_busses=sensor_bus,
+        output_busses=interpreter_bus,
+        delay=0.1,
+        termination_busses=termination_bus,
+        name='interpreter_consumer_producer',
+    )
+
+    controller_consumer = Consumer(
+        consumer_function=controller.follow_line_control,
+        input_busses=sensor_bus,
+        delay=0.1,
+        termination_busses=termination_bus,
+        name='controller_consumer',
+    )
+
+    termination_timer = Timer(
+        timer_busses=termination_bus,
+        duration=5,
+        delay=0.5,
+        # termination_busses=DEFAULT, termination_timer has no termination_bus of its own.
+        name='termination_timer',
+    )
+
+    runConcurrently([sensor_producer, interpreter_consumer_producer, controller_consumer, termination_timer])
+
