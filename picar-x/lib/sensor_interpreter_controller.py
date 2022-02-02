@@ -159,7 +159,7 @@ def follow_line_rossros(picarx):
 
     controller_consumer = Consumer(
         consumer_function=controller.follow_line_control,
-        input_busses=sensor_bus,
+        input_busses=interpreter_bus,
         delay=0.1,
         termination_busses=termination_bus,
         name='controller_consumer',
