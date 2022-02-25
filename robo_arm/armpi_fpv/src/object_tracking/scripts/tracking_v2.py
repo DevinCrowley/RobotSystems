@@ -97,6 +97,50 @@ class PerceptionStuff:
             center_x, center_y, radius = self.get_x_y_r(area_max_contour, *img.shape[:2])
             return area_max, center_x, center_y, radius
 
+class MovementStuff:
+
+    def get_x_dis(self, x_pid, img_w, center_x):
+        x_pid.SetPoint = img_w / 2.0  # 设定
+        x_pid.update(center_x)  # 当前
+        dx = x_pid.output
+        x_dis += int(dx)  # 输出
+
+        x_dis = 200 if x_dis < 200 else x_dis
+        x_dis = 800 if x_dis > 800 else x_dis
+        
+        return x_dis
+
+    def get_y_dis(self, y_pid, area_max):
+        y_pid.SetPoint = 900  # 设定
+        if abs(area_max - 900) < 50:
+            area_max = 900
+        y_pid.update(area_max)  # 当前
+        dy = y_pid.output
+        y_dis += dy  # 输出
+        y_dis = 0.12 if y_dis < 0.12 else y_dis
+        y_dis = 0.25 if y_dis > 0.25 else y_dis
+
+        return y_dis
+
+    def get_z_dis(self, z_pid, img_h, center_y):
+        z_pid.SetPoint = img_h / 2.0
+        z_pid.update(center_y)
+        dy = z_pid.output
+        z_dis += dy
+
+        z_dis = 0.22 if z_dis > 0.22 else z_dis
+        z_dis = 0.17 if z_dis < 0.17 else z_dis
+
+        return z_dis
+
+    def command_move(self, x_dis, y_dis, z_dis, ik, bus_servo_control):
+        target = ik.setPitchRanges((0, round(y_dis, 4), round(z_dis, 4)), -90, -85, -95)
+        if target:
+            servo_data = target[1]
+            bus_servo_control.set_servos(joints_pub, 20, (
+                (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, x_dis)))
+
+
 
 # 找出面积最大的轮廓
 # 参数为要比较的轮廓的列表
@@ -165,40 +209,15 @@ def run(img):
 
     ps = PerceptionStuff()
     area_max, center_x, center_y, radius = ps.do_all(img)
-    
-    img_h, img_w = img.shape[:2]
 
     if area_max > 100 and radius <= 100 and start_move:
-        x_pid.SetPoint = img_w / 2.0  # 设定
-        x_pid.update(center_x)  # 当前
-        dx = x_pid.output
-        x_dis += int(dx)  # 输出
+        img_h, img_w = img.shape[:2]
+        ms = MovementStuff()
+        x_dis = ms.get_x_dis(x_pid, img_w, center_x)
+        y_dis = ms.get_y_dis(y_pid, area_max)
+        z_dis = ms.get_z_dis(z_pid, img_h, center_y)
+        ms.command_move(x_dis, y_dis, z_dis, ik, bus_servo_control)
 
-        x_dis = 200 if x_dis < 200 else x_dis
-        x_dis = 800 if x_dis > 800 else x_dis
-
-        y_pid.SetPoint = 900  # 设定
-        if abs(area_max - 900) < 50:
-            area_max = 900
-        y_pid.update(area_max)  # 当前
-        dy = y_pid.output
-        y_dis += dy  # 输出
-        y_dis = 0.12 if y_dis < 0.12 else y_dis
-        y_dis = 0.25 if y_dis > 0.25 else y_dis
-
-        z_pid.SetPoint = img_h / 2.0
-        z_pid.update(center_y)
-        dy = z_pid.output
-        z_dis += dy
-
-        z_dis = 0.22 if z_dis > 0.22 else z_dis
-        z_dis = 0.17 if z_dis < 0.17 else z_dis
-
-        target = ik.setPitchRanges((0, round(y_dis, 4), round(z_dis, 4)), -90, -85, -95)
-        if target:
-            servo_data = target[1]
-            bus_servo_control.set_servos(joints_pub, 20, (
-                (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, x_dis)))
     return img
 
 def image_callback(ros_image):
