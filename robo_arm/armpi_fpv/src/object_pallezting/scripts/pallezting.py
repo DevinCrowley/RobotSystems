@@ -228,10 +228,10 @@ def reset_position():
 y_d = 0
 roll_angle = 0
 gripper_rotation = 0
-# 木块对角长度一半
+# 木块对角长度一半: Half the diagonal length of the wooden block
 square_diagonal = 0.03*math.sin(math.pi/4)
 F = 1000/240.0
-# 夹取
+# 夹取: grip
 def pick(grasps, have_adjust=False):
     global roll_angle, last_x_dis
     global adjust, x_dis, y_dis, tag_x_dis, tag_y_dis, adjust_error, gripper_rotation
@@ -241,7 +241,7 @@ def pick(grasps, have_adjust=False):
     approach = grasps.grasp_approach
     retreat = grasps.grasp_retreat
      
-    # 计算是否能够到达目标位置，如果不能够到达，返回False
+    # 计算是否能够到达目标位置，如果不能够到达，返回False: Calculate whether the target position can be reached, if not, return
     target1 = ik.setPitchRanges((position.x + approach.x, position.y + approach.y, position.z + approach.z), rotation.r, -180, 0)
     target2 = ik.setPitchRanges((position.x, position.y, position.z), rotation.r, -180, 0)
     target3 = ik.setPitchRanges((position.x, position.y, position.z + grasps.up), rotation.r, -180, 0)
@@ -257,7 +257,7 @@ def pick(grasps, have_adjust=False):
             if not __isRunning:
                 return False
             
-            # 第三步：移到目标点
+            # 第三步：移到目标点: step 3: move to the target point
             servo_data = target2[1]
             bus_servo_control.set_servos(joints_pub, 1500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))
             rospy.sleep(2)
@@ -274,14 +274,14 @@ def pick(grasps, have_adjust=False):
             y_dis = tag_y_dis =0
             
             if state == 'color':
-                # 第四步：微调整位置
+                # 第四步：微调整位置: step 4: fine-tune the position
                 if not adjust:
                     adjust = True
                     return True
             else:
                 return True
         else:
-            # 第五步: 对齐
+            # 第五步: 对齐: step 5: align
             bus_servo_control.set_servos(joints_pub, 500, ((2, 500 + int(F*gripper_rotation)), ))
             rospy.sleep(0.8)
             if not __isRunning:
@@ -290,7 +290,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第六步：夹取
+            # 第六步：夹取: step 6: clamp
             bus_servo_control.set_servos(joints_pub, 500, ((1, grasps.grasp_posture), ))               
             rospy.sleep(0.8)
             if not __isRunning:
@@ -301,7 +301,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第七步：抬升物体
+            # 第七步：抬升物体: step 7: lift the object
             if grasps.up != 0:
                 servo_data = target3[1]
                 bus_servo_control.set_servos(joints_pub, 500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))
@@ -314,7 +314,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第八步：移到撤离点
+            # 第八步：移到撤离点: step 8: move to the evacuation point
             servo_data = target4[1]
             if servo_data != target3[1]:    
                 bus_servo_control.set_servos(joints_pub, 1000, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))        
@@ -324,7 +324,7 @@ def pick(grasps, have_adjust=False):
                     rospy.sleep(0.5)                
                     return False
                 
-            # 第九步：移到稳定点
+            # 第九步：移到稳定点: step 9: move to the stable point
             servo_data = target1[1]
             bus_servo_control.set_servos(joints_pub, 1500, ((2, 500), (3, 80), (4, 825), (5, 625)))
             rospy.sleep(1.5)
@@ -353,7 +353,7 @@ def place(places):
     if not __isRunning:
         return False
     if target1 and target2 and target3 and target4:
-        # 第一步：云台转到朝向目标方向
+        # 第一步：云台转到朝向目标方向: step 1: turn the gimbal to the target direction
         servo_data = target1[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((1, places.pre_grasp_posture), (2, int(F*rotation.y)), (3, 150), (4, 825), (5, 625), (6, servo_data['servo6'])))
         rospy.sleep(1)
@@ -362,7 +362,7 @@ def place(places):
             rospy.sleep(0.5)            
             return False
         
-        # 第二步：移到接近点
+        # 第二步：移到接近点: step 2: move to the close point
         bus_servo_control.set_servos(joints_pub, 1500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))      
         rospy.sleep(1.6)
         if not __isRunning:
@@ -370,7 +370,7 @@ def place(places):
             rospy.sleep(0.5)             
             return False
         
-        # 第三步：移到目标点
+        # 第三步：移到目标点: step 3: move to the target point
         servo_data = target2[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6']))) 
         rospy.sleep(1.5)
@@ -382,7 +382,7 @@ def place(places):
             rospy.sleep(1)              
             return False
         
-        # 第四步：抬升
+        # 第四步：抬升: step 4: lift
         if places.up != 0:
             servo_data = target3[1]
             bus_servo_control.set_servos(joints_pub, 800, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
@@ -395,7 +395,7 @@ def place(places):
             rospy.sleep(1)              
             return False
 
-        # 第五步：放置
+        # 第五步：放置: step 5: place
         bus_servo_control.set_servos(joints_pub, 400, ((1, places.pre_grasp_posture - 40), ))         
         rospy.sleep(0.8)        
         bus_servo_control.set_servos(joints_pub, 500, ((1, places.grasp_posture), ))         
@@ -406,7 +406,7 @@ def place(places):
             rospy.sleep(1)              
             return False
         
-        # 第六步：移到撤离点
+        # 第六步：移到撤离点: step 6: move to the evacuation point
         servo_data = target4[1]
         if servo_data != target3[1]:
             bus_servo_control.set_servos(joints_pub, 600, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
@@ -414,7 +414,7 @@ def place(places):
             if not __isRunning:
                 return False
             
-        # 第七步：移到稳定点
+        # 第七步：移到稳定点: step 7: move to the stable point
         servo_data = target1[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((2, 500), (3, 80), (4, 825), (5, 625), (6, servo_data['servo6'])))
         rospy.sleep(1)
@@ -585,7 +585,7 @@ last_y = 0
 state = None
 x_adjust = 0
 pick_color = ''
-# 颜色夹取策略
+# 颜色夹取策略: color clipping strategy
 def color_sort(img, target):
     global X, Y
     global count

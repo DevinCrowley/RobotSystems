@@ -6,11 +6,11 @@ import numpy as np
 from math import sqrt
 import inverse_kinematics
 
-#机械臂根据逆运动学算出的角度进行移动
+#机械臂根据逆运动学算出的角度进行移动: The robotic arm moves according to the angle calculated by inverse kinematics
 ik = inverse_kinematics.IK()
 
 class ArmIK:
-    servo3Range = (0, 1000, 0, 240.0) #脉宽， 角度
+    servo3Range = (0, 1000, 0, 240.0) #脉宽， 角度: pulse width, angle
     servo4Range = (0, 1000, 0, 240.0)
     servo5Range = (0, 1000, 0, 240.0)
     servo6Range = (0, 1000, 0, 240.0)
@@ -30,7 +30,7 @@ class ArmIK:
         self.servo6Param = (self.servo6Range[1] - self.servo6Range[0]) / (self.servo6Range[3] - self.servo6Range[2])
 
     def transformAngelAdaptArm(self, theta3, theta4, theta5, theta6):
-        #将逆运动学算出的角度转换为舵机对应的脉宽值
+        #将逆运动学算出的角度转换为舵机对应的脉宽值: Convert the angle calculated by inverse kinematics to the pulse width value corresponding to the steering gear
         servo3 = int(round(theta3 * self.servo3Param + (self.servo3Range[1] + self.servo3Range[0])/2))
 
         servo4 = int(round(-theta4 * self.servo4Param + (self.servo4Range[1] + self.servo4Range[0])/2))
@@ -43,10 +43,12 @@ class ArmIK:
     
     def setPitchRanges(self, coordinate_data, alpha, alpha1, alpha2, d = 0.01):
         #给定坐标coordinate_data和俯仰角alpha,以及俯仰角范围的范围alpha1, alpha2，自动寻找最接近给定俯仰角的解
+        # Given the coordinates coordinate_data and the pitch angle alpha, and the range of the pitch angle range alpha1, alpha2, automatically find the solution closest to the given pitch angle
         #如果无解返回False,否则返回舵机角度、俯仰角
-        #坐标单位m， 以元组形式传入，例如(0, 0.5, 0.1)
-        #alpha为给定俯仰角, 单位度
-        #alpha1和alpha2为俯仰角的取值范围
+        # If there is no solution, return False, otherwise return to the servo angle and pitch angle
+        #坐标单位m， 以元组形式传入，例如(0, 0.5, 0.1): Coordinate unit m, passed in as a tuple, for example (0, 0.5, 0.1)
+        #alpha为给定俯仰角, 单位度: alpha is the given pitch angle, in degrees
+        #alpha1和alpha2为俯仰角的取值范围: alpha1 and alpha2 are the value ranges of the pitch angle
 
         x, y, z = coordinate_data
         a_range = abs(int(abs(alpha1 - alpha2)/d)) + 1

@@ -144,30 +144,30 @@ def run(img):
             return img
         cv2.circle(img, (int(center_x), int(center_y)), int(radius), range_rgb[__target_color], 2)
         if start_move:
-            x_pid.SetPoint = img_w / 2.0  # 设定
-            x_pid.update(center_x)  # 当前
+            x_pid.SetPoint = img_w / 2.0  # 设定 set up
+            x_pid.update(center_x)  # 当前 current
             dx = x_pid.output
-            x_dis += int(dx)  # 输出
+            x_dis += int(dx)  # 输出 output
 
-            x_dis = 200 if x_dis < 200 else x_dis
-            x_dis = 800 if x_dis > 800 else x_dis
+            x_dis = 200 if x_dis < 200 else x_dis # min 200
+            x_dis = 800 if x_dis > 800 else x_dis # max 800
 
-            y_pid.SetPoint = 900  # 设定
+            y_pid.SetPoint = 900  # 设定 set up
             if abs(area_max - 900) < 50:
                 area_max = 900
-            y_pid.update(area_max)  # 当前
+            y_pid.update(area_max)  # 当前 current
             dy = y_pid.output
-            y_dis += dy  # 输出
-            y_dis = 0.12 if y_dis < 0.12 else y_dis
-            y_dis = 0.25 if y_dis > 0.25 else y_dis
+            y_dis += dy  # 输出 output
+            y_dis = 0.12 if y_dis < 0.12 else y_dis # min 0.12
+            y_dis = 0.25 if y_dis > 0.25 else y_dis # max 0.25
 
             z_pid.SetPoint = img_h / 2.0
             z_pid.update(center_y)
             dy = z_pid.output
             z_dis += dy
 
-            z_dis = 0.22 if z_dis > 0.22 else z_dis
-            z_dis = 0.17 if z_dis < 0.17 else z_dis
+            z_dis = 0.22 if z_dis > 0.22 else z_dis # max 0.22
+            z_dis = 0.17 if z_dis < 0.17 else z_dis # min 0.17
 
             target = ik.setPitchRanges((0, round(y_dis, 4), round(z_dis, 4)), -90, -85, -95)
             if target:
