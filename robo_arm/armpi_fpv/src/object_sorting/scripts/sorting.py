@@ -439,7 +439,8 @@ def place(places):
         cci_msg.color = [['red', 'green', 'blue'][current_color_idx]]
         cci_msg.tag = []
         set_target(cci_msg)
-        print(f"current_color_idx: {current_color_idx}")
+        bus_servo_control.set_servos(joints_pub, 1000, ((2, 500), (3, 80), (4, 825), (5, 625), (6, servo_data['servo6'] + 50)))
+        rospy.sleep(1)
         if not __isRunning:
             return False
 
