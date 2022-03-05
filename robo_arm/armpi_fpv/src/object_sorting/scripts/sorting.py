@@ -536,7 +536,7 @@ def move():
                         
                         places.grasp_posture = 75
                         places.pre_grasp_posture = 450                        
-                        # place(places)
+                        place(places)
                     
                     initMove(delay=False)
                     reset()
@@ -974,7 +974,7 @@ def enter_func(msg):
         init()
         if not org_image_sub_ed:
             org_image_sub_ed = True
-            image_sub = rospy.Subscriber('/usb_cam/image_raw', Image, image_callback)
+            # image_sub = rospy.Subscriber('/usb_cam/image_raw', Image, image_callback)
                
     return [True, 'enter']
 
