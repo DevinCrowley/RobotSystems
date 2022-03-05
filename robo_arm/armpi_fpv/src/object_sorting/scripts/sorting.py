@@ -438,6 +438,10 @@ def place(places):
         
         global current_color_idx
         current_color_idx += 1
+        cci_msg = SetTarget()
+        cci_msg.color = [['red', 'green', 'blue'][current_color_idx]]
+        cci_msg.tag = []
+        set_target(cci_msg)
         return True
     else:
         rospy.loginfo('place failed')
