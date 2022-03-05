@@ -634,7 +634,7 @@ def color_sort(img, target):
     roi = getROI(rotation_angle)
     # for i in color_range:
     global current_color_idx
-    for i in [color_range[current_color_idx]]:
+    for i in [__target_data[0][current_color_idx]]:
         if i in target:
             if i in detect_color:
                 target_color_range = color_range[i]                
