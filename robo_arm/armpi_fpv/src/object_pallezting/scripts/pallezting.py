@@ -1018,7 +1018,7 @@ def heartbeat_srv_cb(msg):
     if isinstance(heartbeat_timer, Timer):
         heartbeat_timer.cancel()
     if msg.data:
-        heartbeat_timer = Timer(5, rospy.ServiceProxy('/object_pallezting/exit', Trigger))
+        heartbeat_timer = Timer(5, rospy.ServiceProxy('/object_pallezting_dif/exit', Trigger))
         heartbeat_timer.start()
     rsp = SetBoolResponse()
     rsp.success = msg.data
@@ -1027,19 +1027,19 @@ def heartbeat_srv_cb(msg):
 
 if __name__ == '__main__':
     # 初始化节点
-    rospy.init_node('object_pallezting', log_level=rospy.DEBUG)
+    rospy.init_node('object_pallezting_dif', log_level=rospy.DEBUG)
     
     # 舵机发布
     joints_pub = rospy.Publisher('/servo_controllers/port_id_1/multi_id_pos_dur', MultiRawIdPosDur, queue_size=1)
 
     # 图像发布
-    image_pub = rospy.Publisher('/object_pallezting/image_result', Image, queue_size=1)  # register result image publisher
+    image_pub = rospy.Publisher('/object_pallezting_dif/image_result', Image, queue_size=1)  # register result image publisher
     
     # app通信服务
-    enter_srv = rospy.Service('/object_pallezting/enter', Trigger, enter_func)
-    exit_srv = rospy.Service('/object_pallezting/exit', Trigger, exit_func)
-    running_srv = rospy.Service('/object_pallezting/set_running', SetBool, set_running)
-    heartbeat_srv = rospy.Service('/object_pallezting/heartbeat', SetBool, heartbeat_srv_cb)
+    enter_srv = rospy.Service('/object_pallezting_dif/enter', Trigger, enter_func)
+    exit_srv = rospy.Service('/object_pallezting_dif/exit', Trigger, exit_func)
+    running_srv = rospy.Service('/object_pallezting_dif/set_running', SetBool, set_running)
+    heartbeat_srv = rospy.Service('/object_pallezting_dif/heartbeat', SetBool, heartbeat_srv_cb)
     
     # 蜂鸣器
     buzzer_pub = rospy.Publisher('/sensor/buzzer', Float32, queue_size=1)
