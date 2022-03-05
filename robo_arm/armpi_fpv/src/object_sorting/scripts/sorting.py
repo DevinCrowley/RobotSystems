@@ -432,16 +432,17 @@ def place(places):
         # 第七步：移到稳定点: Step 7: Move to Stable Point
         servo_data = target1[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((2, 500), (3, 80), (4, 825), (5, 625), (6, servo_data['servo6'])))
-        rospy.sleep(1)
-        if not __isRunning:
-            return False
-        
+        rospy.sleep(1)        
         global current_color_idx
         current_color_idx += 1
         cci_msg = SetTarget()
         cci_msg.color = [['red', 'green', 'blue'][current_color_idx]]
         cci_msg.tag = []
         set_target(cci_msg)
+        print(f"current_color_idx: {current_color_idx}")
+        if not __isRunning:
+            return False
+
         return True
     else:
         rospy.loginfo('place failed')
