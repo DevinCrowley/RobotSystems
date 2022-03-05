@@ -536,7 +536,7 @@ def move():
                         
                         places.grasp_posture = 75
                         places.pre_grasp_posture = 450                        
-                        place(places)
+                        # place(places)
                     
                     initMove(delay=False)
                     reset()
