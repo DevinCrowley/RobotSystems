@@ -436,6 +436,8 @@ def place(places):
         if not __isRunning:
             return False
         
+        global current_color_idx
+        current_color_idx += 1
         return True
     else:
         rospy.loginfo('place failed')
@@ -443,12 +445,14 @@ def place(places):
 
 ##################################################
 # 放置坐标x, y, z(m): place coordinates x, y, z(m)
-place_position = {'red':  [-0.18,  0.057,   0.01],
-                  'green':[-0.18,  0,       0.01],
-                  'blue': [-0.18,  -0.057,  0.01],
-                  'tag1': [ 0.18,  0.057,   0.01],
-                  'tag2': [ 0.18,  0,       0.01],
-                  'tag3': [ 0.18,  -0.057,  0.01]}
+place_position = {
+    'red':  [-0.18,  0.057,   0.01],
+    'green':[-0.18,  0,       0.01],
+    'blue': [-0.18,  -0.057,  0.01],
+    'tag1': [ 0.18,  0.057,   0.01],
+    'tag2': [ 0.18,  0,       0.01],
+    'tag3': [ 0.18,  -0.057,  0.01],
+}
 ###################################################
 
 grasps = Grasp()
@@ -592,6 +596,8 @@ state = None
 x_adjust = 0
 pick_color = ''
 # 颜色夹取策略: Color clipping strategy
+global current_color_idx
+current_color_idx = 0
 def color_sort(img, target):
     global X, Y
     global count
@@ -622,7 +628,9 @@ def color_sort(img, target):
     color_area_max = None
     areaMaxContour_max = 0
     roi = getROI(rotation_angle)
-    for i in color_range:
+    # for i in color_range:
+    global current_color_idx
+    for i in [color_range[current_color_idx]]:
         if i in target:
             if i in detect_color:
                 target_color_range = color_range[i]                
@@ -636,7 +644,7 @@ def color_sort(img, target):
                 contours = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # 找出轮廓
                 areaMaxContour, area_max = getAreaMaxContour(contours)  # 找出最大轮廓
                 if areaMaxContour is not None:
-                    if area_max > max_area and area_max > 100:#找最大面积
+                    if area_max > max_area and area_max > 100:#找最大面积: find the largest area
                         max_area = area_max
                         color_area_max = i
                         areaMaxContour_max = areaMaxContour
