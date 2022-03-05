@@ -27,8 +27,8 @@ from armpi_fpv import Misc
 from armpi_fpv import apriltag
 from armpi_fpv import bus_servo_control
 
-# 分捡
-# 如未声明，使用的长度，距离单位均为m
+# 分捡: sorting
+# 如未声明，使用的长度，距离单位均为m: If not stated, the length used, the distance unit is m
 d_tag_map = 0
 
 tag_z_min = 0.01
@@ -99,12 +99,12 @@ Y_DIS = 0
 y_dis = Y_DIS
 last_x_dis = x_dis
 last_x_dis = y_dis
-x_pid = PID.PID(P=0.01, I=0.001, D=0)#pid初始化
+x_pid = PID.PID(P=0.01, I=0.001, D=0)#pid初始化: pid initialization
 y_pid = PID.PID(P=0.00001, I=0, D=0)
 
 tag_x_dis = 500
 tag_y_dis = 0
-tag_x_pid = PID.PID(P=0.01, I=0.001, D=0)#pid初始化
+tag_x_pid = PID.PID(P=0.01, I=0.001, D=0)#pid初始化: pid initialization
 tag_y_pid = PID.PID(P=0.02, I=0, D=0)
 
 stop_state = 0
@@ -241,10 +241,10 @@ def init():
 y_d = 0
 roll_angle = 0
 gripper_rotation = 0
-# 木块对角长度一半
+# 木块对角长度一半: half the diagonal length of the wooden block
 square_diagonal = 0.03*math.sin(math.pi/4)
 F = 1000/240.0
-# 夹取
+# 夹取: grip
 def pick(grasps, have_adjust=False):
     global roll_angle, last_x_dis
     global adjust, x_dis, y_dis, tag_x_dis, tag_y_dis, adjust_error, gripper_rotation
@@ -254,7 +254,7 @@ def pick(grasps, have_adjust=False):
     approach = grasps.grasp_approach
     retreat = grasps.grasp_retreat
      
-    # 计算是否能够到达目标位置，如果不能够到达，返回False
+    # 计算是否能够到达目标位置，如果不能够到达，返回False: Calculate whether the target position can be reached, if not, return False
     target1 = ik.setPitchRanges((position.x + approach.x, position.y + approach.y, position.z + approach.z), rotation.r, -180, 0)
     target2 = ik.setPitchRanges((position.x, position.y, position.z), rotation.r, -180, 0)
     target3 = ik.setPitchRanges((position.x, position.y, position.z + grasps.up), rotation.r, -180, 0)
@@ -270,7 +270,7 @@ def pick(grasps, have_adjust=False):
             if not __isRunning:
                 return False
             
-            # 第三步：移到目标点
+            # 第三步：移到目标点: Step 3: Move to the target point
             servo_data = target2[1]
             bus_servo_control.set_servos(joints_pub, 1500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))
             rospy.sleep(2)
@@ -287,14 +287,14 @@ def pick(grasps, have_adjust=False):
             y_dis = tag_y_dis =0
             
             if state == 'color':
-                # 第四步：微调整位置
+                # 第四步：微调整位置: Step 4: Fine-tune the position
                 if not adjust:
                     adjust = True
                     return True
             else:
                 return True
         else:
-            # 第五步: 对齐
+            # 第五步: 对齐: Step 5: Align
             bus_servo_control.set_servos(joints_pub, 500, ((2, 500 + int(F*gripper_rotation)), ))
             rospy.sleep(0.8)
             if not __isRunning:
@@ -303,7 +303,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第六步：夹取
+            # 第六步：夹取: Step 6: Clamp
             bus_servo_control.set_servos(joints_pub, 500, ((1, grasps.grasp_posture - 80), ))               
             rospy.sleep(0.6)
             bus_servo_control.set_servos(joints_pub, 500, ((1, grasps.grasp_posture), ))               
@@ -316,7 +316,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第七步：抬升物体
+            # 第七步：抬升物体: Step 7: Lift the Object
             if grasps.up != 0:
                 servo_data = target3[1]
                 bus_servo_control.set_servos(joints_pub, 500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))
@@ -329,7 +329,7 @@ def pick(grasps, have_adjust=False):
                 rospy.sleep(1)             
                 return False
             
-            # 第八步：移到撤离点
+            # 第八步：移到撤离点: Step 8: Move to the evacuation point
             servo_data = target4[1]
             if servo_data != target3[1]:    
                 bus_servo_control.set_servos(joints_pub, 1000, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5'])))        
@@ -339,7 +339,7 @@ def pick(grasps, have_adjust=False):
                     rospy.sleep(0.5)                
                     return False
                 
-            # 第九步：移到稳定点
+            # 第九步：移到稳定点: Step 9: Move to Stable Point
             servo_data = target1[1]
             bus_servo_control.set_servos(joints_pub, 1500, ((2, 500), (3, 80), (4, 825), (5, 625)))
             rospy.sleep(1.5)
@@ -359,7 +359,7 @@ def place(places):
     approach = places.grasp_approach
     retreat = places.grasp_retreat
     
-    # 计算是否能够到达目标位置，如果不能够到达，返回False
+    # 计算是否能够到达目标位置，如果不能够到达，返回False: Calculate whether the target position can be reached, if not, return False
     target1 = ik.setPitchRanges((position.x + approach.x, position.y + approach.y, position.z + approach.z), rotation.r, -180, 0)
     target2 = ik.setPitchRanges((position.x, position.y, position.z), rotation.r, -180, 0)
     target3 = ik.setPitchRanges((position.x, position.y, position.z + places.up), rotation.r, -180, 0)
@@ -368,7 +368,7 @@ def place(places):
     if not __isRunning:
         return False
     if target1 and target2 and target3 and target4:
-        # 第一步：云台转到朝向目标方向
+        # 第一步：云台转到朝向目标方向: Step 1: Turn the gimbal to the target direction
         servo_data = target1[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((1, places.pre_grasp_posture), (2, int(F*rotation.y)), (3, 80), (4, 825), (5, 625), (6, servo_data['servo6'])))
         rospy.sleep(1)
@@ -377,7 +377,7 @@ def place(places):
             rospy.sleep(0.5)            
             return False
         
-        # 第二步：移到接近点
+        # 第二步：移到接近点: Step 2: Move to the close point
         bus_servo_control.set_servos(joints_pub, 1500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))      
         rospy.sleep(1.6)
         if not __isRunning:
@@ -385,7 +385,7 @@ def place(places):
             rospy.sleep(0.5)             
             return False
         
-        # 第三步：移到目标点
+        # 第三步：移到目标点: Step 3: Move to the target point
         servo_data = target2[1]
         bus_servo_control.set_servos(joints_pub, 500, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6']))) 
         rospy.sleep(1)
@@ -397,7 +397,7 @@ def place(places):
             rospy.sleep(1)              
             return False
         
-        # 第四步：抬升
+        # 第四步：抬升: Step 4: Lift
         if places.up != 0:
             servo_data = target3[1]
             bus_servo_control.set_servos(joints_pub, 800, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
@@ -410,7 +410,7 @@ def place(places):
             rospy.sleep(1)              
             return False
 
-        # 第五步：放置
+        # 第五步：放置: Step 5: Place
         bus_servo_control.set_servos(joints_pub, 100, ((1, places.pre_grasp_posture - 20), ))         
         rospy.sleep(0.2)        
         bus_servo_control.set_servos(joints_pub, 500, ((1, places.grasp_posture), ))         
@@ -421,7 +421,7 @@ def place(places):
             rospy.sleep(1)              
             return False
         
-        # 第六步：移到撤离点
+        # 第六步：移到撤离点: Step 6: Move to the evacuation point
         servo_data = target4[1]
         if servo_data != target3[1]:
             bus_servo_control.set_servos(joints_pub, 600, ((3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
@@ -429,7 +429,7 @@ def place(places):
             if not __isRunning:
                 return False
             
-        # 第七步：移到稳定点
+        # 第七步：移到稳定点: Step 7: Move to Stable Point
         servo_data = target1[1]
         bus_servo_control.set_servos(joints_pub, 1000, ((2, 500), (3, 80), (4, 825), (5, 625), (6, servo_data['servo6'])))
         rospy.sleep(1)
@@ -442,7 +442,7 @@ def place(places):
         return False
 
 ##################################################
-# 放置坐标x, y, z(m)
+# 放置坐标x, y, z(m): place coordinates x, y, z(m)
 place_position = {'red':  [-0.18,  0.057,   0.01],
                   'green':[-0.18,  0,       0.01],
                   'blue': [-0.18,  -0.057,  0.01],
@@ -466,27 +466,27 @@ def move():
                 approach = True
                 
                 if not adjust and move_state == 1:
-                    # 夹取的位置
+                    # 夹取的位置: gripping position
                     grasps.grasp_pos.position.x = X
                     grasps.grasp_pos.position.y = Y
                     if state == 'color':
                         grasps.grasp_pos.position.z = Misc.map(Y - 0.15, 0, 0.15, color_z_min, color_z_max)
                     else:
                         grasps.grasp_pos.position.z = Misc.map(Y - 0.12, 0, 0.15, tag_z_min, tag_z_max)
-                    # 夹取时的俯仰角
+                    # 夹取时的俯仰角: Pitch angle when gripping
                     grasps.grasp_pos.rotation.r = -175
                     
-                    # 夹取后抬升的距离
+                    # 夹取后抬升的距离: Lifting distance after gripping
                     grasps.up = 0
                     
-                    # 夹取时靠近的方向和距离
+                    # 夹取时靠近的方向和距离: Approaching direction and distance when gripping
                     grasps.grasp_approach.y = -0.01
                     grasps.grasp_approach.z = 0.02
                     
-                    # 夹取后后撤的方向和距离
+                    # 夹取后后撤的方向和距离: The direction and distance of retraction after gripping
                     grasps.grasp_retreat.z = 0.04
                     
-                    # 夹取前后夹持器的开合
+                    # 夹取前后夹持器的开合: The opening and closing of the gripper before and after the gripping
                     grasps.grasp_posture = 450
                     grasps.pre_grasp_posture = 75
                     buzzer_pub.publish(0.1)
@@ -591,7 +591,7 @@ last_y = 0
 state = None
 x_adjust = 0
 pick_color = ''
-# 颜色夹取策略
+# 颜色夹取策略: Color clipping strategy
 def color_sort(img, target):
     global X, Y
     global count
@@ -616,7 +616,7 @@ def color_sort(img, target):
       
     frame_resize = cv2.resize(img_copy, size, interpolation=cv2.INTER_NEAREST)
     frame_gray = cv2.cvtColor(frame_resize, cv2.COLOR_BGR2GRAY)
-    frame_lab = cv2.cvtColor(frame_resize, cv2.COLOR_BGR2LAB)  # 将图像转换到LAB空间
+    frame_lab = cv2.cvtColor(frame_resize, cv2.COLOR_BGR2LAB)  # 将图像转换到LAB空间: Convert image to LAB space
     
     max_area = 0
     color_area_max = None
@@ -626,7 +626,7 @@ def color_sort(img, target):
         if i in target:
             if i in detect_color:
                 target_color_range = color_range[i]                
-                frame_mask1 = cv2.inRange(frame_lab, tuple(target_color_range['min']), tuple(target_color_range['max']))  # 对原图像和掩模进行位运算
+                frame_mask1 = cv2.inRange(frame_lab, tuple(target_color_range['min']), tuple(target_color_range['max']))  # 对原图像和掩模进行位运算: Bitwise operations on the original image and mask
                 #mask = cv2.bitwise_and(roi, frame_gray)
                 frame_mask2 = cv2.bitwise_and(roi, frame_mask1)
                 eroded = cv2.erode(frame_mask2, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))  #腐蚀
@@ -640,14 +640,14 @@ def color_sort(img, target):
                         max_area = area_max
                         color_area_max = i
                         areaMaxContour_max = areaMaxContour
-    if max_area > 100:  # 有找到最大面积
+    if max_area > 100:  # 有找到最大面积: have found the largest area
         rect = cv2.minAreaRect(areaMaxContour_max)
         box_rotation_angle = rect[2]
         if box_rotation_angle > 45:
             box_rotation_angle =  box_rotation_angle - 90        
         
         box = np.int0(cv2.boxPoints(rect))   
-        for j in range(4): # 映射到原图大小
+        for j in range(4): # 映射到原图大小: Map to original size
             box[j, 0] = int(Misc.map(box[j, 0], 0, size[0], 0, img_w))
             box[j, 1] = int(Misc.map(box[j, 1], 0, size[1], 0, img_h))
         
@@ -674,7 +674,7 @@ def color_sort(img, target):
                 rgb_pub.publish(led)
                 rospy.sleep(0.1)
                 
-                # 位置映射
+                # 位置映射: location map
                 if 298 + d_color_map < centerY <= 424 + d_color_map:
                     Y = Misc.map(centerY, 298 + d_color_map, 424 + d_color_map, 0.12, 0.12 - 0.04)
                 elif 198 + d_color_map < centerY <= 298 + d_color_map:
@@ -816,7 +816,7 @@ def tag_sort(img, target):
                     adjust = False
                 else:
                     current_tag = target[0]
-                    # 位置映射
+                    # 位置映射: location map
                     if tag_map[1] + d_tag_map < centerY <= tag_map[0] + d_tag_map:
                         Y = Misc.map(centerY, tag_map[1] + d_tag_map, tag_map[0] + d_tag_map, 0.12 + d_map, 0.12) - 0.005
                     elif tag_map[2] + d_tag_map < centerY <= tag_map[1] + d_tag_map:
@@ -866,9 +866,9 @@ def run(img):
     global count_adjust_timeout
     
     if len(__target_data[1]) != 0:
-        apriltagDetect(img) # apriltag检测
+        apriltagDetect(img) # apriltag检测: Apriltag detection
         
-    # 选取策略，优先tag, 夹取超时处理
+    # 选取策略，优先tag, 夹取超时处理: Selection strategy, priority tag, clip timeout processing
     if 'tag1' in __target_data[1] and 'tag1' in current_tag:
         if tag1[1] != -1:
             count_adjust_timeout = 0
@@ -932,8 +932,8 @@ def image_callback(ros_image):
     global stop_state
 
     image = np.ndarray(shape=(ros_image.height, ros_image.width, 3), dtype=np.uint8,
-                       buffer=ros_image.data)  # 将自定义图像消息转化为图像
-    cv2_img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) # 转为opencv格式
+                       buffer=ros_image.data)  # 将自定义图像消息转化为图像: Convert custom image messages to images
+    cv2_img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) # 转为opencv格式: Convert to opencv format
     frame = cv2_img.copy()
     frame_result = frame
     
@@ -1039,25 +1039,25 @@ def heartbeat_srv_cb(msg):
     return rsp
 
 if __name__ == '__main__':
-    # 初始化节点
+    # 初始化节点: initialize node
     rospy.init_node('object_sorting', log_level=rospy.DEBUG)
 
-    # 舵机发布
+    # 舵机发布: servo release
     joints_pub = rospy.Publisher('/servo_controllers/port_id_1/multi_id_pos_dur', MultiRawIdPosDur, queue_size=1)
 
-    # 图像发布
+    # 图像发布: image post
     image_pub = rospy.Publisher('/object_sorting/image_result', Image, queue_size=1)  # register result image publisher
     
-    # app通信服务
+    # app通信服务: app communication service
     enter_srv = rospy.Service('/object_sorting/enter', Trigger, enter_func)
     exit_srv = rospy.Service('/object_sorting/exit', Trigger, exit_func)
     running_srv = rospy.Service('/object_sorting/set_running', SetBool, set_running)
     set_target_srv = rospy.Service('/object_sorting/set_target', SetTarget, set_target)
     heartbeat_srv = rospy.Service('/object_sorting/heartbeat', SetBool, heartbeat_srv_cb)
     
-    # 蜂鸣器
+    # 蜂鸣器: buzzer
     buzzer_pub = rospy.Publisher('/sensor/buzzer', Float32, queue_size=1)
-    # rgb 灯
+    # rgb 灯: rgb lamp
     rgb_pub = rospy.Publisher('/sensor/rgb_led', Led, queue_size=1)
 
     debug = False

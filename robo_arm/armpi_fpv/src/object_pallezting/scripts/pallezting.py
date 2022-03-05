@@ -64,7 +64,7 @@ range_rgb = {
 }
 
 ################################################
-# 放置坐标x, y, z(m)
+# 放置坐标x, y, z(m): place coordinates x, y, z(m)
 place_position = {'red':  [-0.13, -0, 0.01],
                   'green':[-0.13, -0, 0.01],
                   'blue': [-0.13, -0, 0.01],
@@ -73,8 +73,8 @@ place_position = {'red':  [-0.13, -0, 0.01],
                   'tag3': [ 0.13, -0, 0.01]}
 ################################################
 
-# 找出面积最大的轮廓和对应面积
-# 参数为要比较的轮廓的列表
+# 找出面积最大的轮廓和对应面积: Find the contour with the largest area and the corresponding area
+# 参数为要比较的轮廓的列表: argument is a list of contours to compare
 def getAreaMaxContour(contours):
     contour_area_temp = 0
     contour_area_max = 0
@@ -89,7 +89,7 @@ def getAreaMaxContour(contours):
 
     return area_max_contour, contour_area_max  # 返回最大的轮廓
 
-# 初始位置
+# 初始位置: initial position
 def initMove(delay=True):
     with lock:
         bus_servo_control.set_servos(joints_pub, 1500, ((1, 75), (2, 500), (3, 80), (4, 825), (5, 625), (6, 500)))
@@ -203,7 +203,7 @@ def reset():
         detect_color = ('red', 'green', 'blue')
 
 color_range = None
-# app初始化调用
+# app初始化调用: app initialization call
 def init():
     global stop_state
     global color_range
