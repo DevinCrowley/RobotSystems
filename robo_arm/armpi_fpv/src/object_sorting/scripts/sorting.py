@@ -430,8 +430,8 @@ def place(places):
                 return False
         
         # Increment color target
-        global current_color_idx
-        current_color_idx += 1
+        global current_item_idx
+        current_item_idx += 1
             
         # 第七步：移到稳定点: Step 7: Move to Stable Point
         servo_data = target1[1]
@@ -455,9 +455,9 @@ place_position = {
     'green':[0.22,  0,       0.01],
     'blue': [0.18,  -0.057,  0.01],
     
-    'tag1': [ 0.18,  0.057,   0.01],
-    'tag2': [ 0.18,  0,       0.01],
-    'tag3': [ 0.18,  -0.057,  0.01],
+    'tag1': [ -0.18,  0.057,   0.01],
+    'tag2': [ -0.22,  0,       0.01],
+    'tag3': [ -0.18,  -0.057,  0.01],
 }
 ###################################################
 
@@ -602,8 +602,8 @@ state = None
 x_adjust = 0
 pick_color = ''
 # 颜色夹取策略: Color clipping strategy
-global current_color_idx
-current_color_idx = 0
+global current_item_idx
+current_item_idx = 0
 def color_sort(img, target):
     global X, Y
     global count
@@ -635,8 +635,8 @@ def color_sort(img, target):
     areaMaxContour_max = 0
     roi = getROI(rotation_angle)
     # for i in color_range:
-    global current_color_idx
-    for i in [__target_data[0][current_color_idx]]:
+    global current_item_idx
+    for i in [__target_data[0][current_item_idx]]:
         if i in target:
             if i in detect_color:
                 target_color_range = color_range[i]                
@@ -883,10 +883,12 @@ def run(img):
         apriltagDetect(img) # apriltag检测: Apriltag detection
         
     # 选取策略，优先tag, 夹取超时处理: Selection strategy, priority tag, clip timeout processing
-    if 'tag1' in __target_data[1] and 'tag1' in current_tag:
-        if tag1[1] != -1:
+    global current_item_idx
+    tag_name = __target_data[1][current_item_idx]
+    if tag_name in current_tag:
+        if tag_name[1] != -1:
             count_adjust_timeout = 0
-            img = tag_sort(img, tag1)
+            img = tag_sort(img, tag_name)
         else:
             if adjust:
                 count_adjust_timeout += 1
@@ -897,42 +899,58 @@ def run(img):
                 count_tag_timeout += 1
                 if count_tag_timeout > 3:
                     count_tag_timeout = 0
-                    if current_tag != 'tag1':
-                        current_tag.remove('tag1')
-    elif 'tag2' in __target_data[1] and 'tag2' in current_tag:
-        if tag2[1] != -1:
-            count_adjust_timeout = 0
-            img = tag_sort(img, tag2)
-        else:
-            if adjust:
-                count_adjust_timeout += 1
-                if count_adjust_timeout > 50:
-                    count_adjust_timeout = 0
-                    adjust_error = True
-            else:
-                count_tag_timeout += 1
-                if count_tag_timeout > 3:
-                    count_tag_timeout = 0
-                    if current_tag != 'tag2':
-                        current_tag.remove('tag2')
-    elif 'tag3' in __target_data[1] and 'tag3' in current_tag:
-        if tag3[1] != -1:
-            count_adjust_timeout = 0
-            img = tag_sort(img, tag3)        
-        else:
-            if adjust:
-                count_adjust_timeout += 1
-                if count_adjust_timeout > 50:
-                    count_adjust_timeout = 0
-                    adjust_error = True
-            else:
-                count_tag_timeout += 1
-                if count_tag_timeout > 3:
-                    count_tag_timeout = 0
-                    if current_tag != 'tag3':
-                        current_tag.remove('tag3')
-    elif len(__target_data[0]) != 0:
-        img = color_sort(img, __target_data[0])
+                    if current_tag != tag_name:
+                        current_tag.remove(tag_name)
+    # if 'tag1' in __target_data[1] and 'tag1' in current_tag:
+    #     if tag1[1] != -1:
+    #         count_adjust_timeout = 0
+    #         img = tag_sort(img, tag1)
+    #     else:
+    #         if adjust:
+    #             count_adjust_timeout += 1
+    #             if count_adjust_timeout > 50:
+    #                 count_adjust_timeout = 0
+    #                 adjust_error = True
+    #         else:
+    #             count_tag_timeout += 1
+    #             if count_tag_timeout > 3:
+    #                 count_tag_timeout = 0
+    #                 if current_tag != 'tag1':
+    #                     current_tag.remove('tag1')
+    # elif 'tag2' in __target_data[1] and 'tag2' in current_tag:
+    #     if tag2[1] != -1:
+    #         count_adjust_timeout = 0
+    #         img = tag_sort(img, tag2)
+    #     else:
+    #         if adjust:
+    #             count_adjust_timeout += 1
+    #             if count_adjust_timeout > 50:
+    #                 count_adjust_timeout = 0
+    #                 adjust_error = True
+    #         else:
+    #             count_tag_timeout += 1
+    #             if count_tag_timeout > 3:
+    #                 count_tag_timeout = 0
+    #                 if current_tag != 'tag2':
+    #                     current_tag.remove('tag2')
+    # elif 'tag3' in __target_data[1] and 'tag3' in current_tag:
+    #     if tag3[1] != -1:
+    #         count_adjust_timeout = 0
+    #         img = tag_sort(img, tag3)        
+    #     else:
+    #         if adjust:
+    #             count_adjust_timeout += 1
+    #             if count_adjust_timeout > 50:
+    #                 count_adjust_timeout = 0
+    #                 adjust_error = True
+    #         else:
+    #             count_tag_timeout += 1
+    #             if count_tag_timeout > 3:
+    #                 count_tag_timeout = 0
+    #                 if current_tag != 'tag3':
+    #                     current_tag.remove('tag3')
+    # elif len(__target_data[0]) != 0:
+    #     img = color_sort(img, __target_data[0])
     else:
         current_tag = ['tag1', 'tag2', 'tag3']
     img_h, img_w = img.shape[:2]
